@@ -1,29 +1,21 @@
 
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
-#include <ESP8266WebServer.h>
+//#include <ESP8266WebServer.h>
 //#include <ESP8266HTTPClient.h>
 #include <ESP8266mDNS.h>
+#include "login.h"
+#include "control.h"
 #include <DHT.h>
 
 char noipServer[] = "https://dynupdate.no-ip.com";
 
-int relay1 = 0;
-int relay2 = 0;
-
-
-// Uncomment whatever type you're using!
 #define DHTTYPE DHT11     // DHT 11
-//#define DHTTYPE DHT22   // DHT 22, AM2302, AM2321
-//#define DHTTYPE DHT21   // DHT 21, AM2301
 #define DHTPIN 14
 DHT dht(DHTPIN, DHTTYPE);
 const char* host = "nodemcu";
-const char* ssid = "Vikas_PC_Network.";
-const char* password = "1090298156";
 
 
-ESP8266WebServer server ( 80 );
 
 const int led = 13;
 const int outputLed = 12;
@@ -37,42 +29,14 @@ void outputJson() {
              "{'nodemcu' : [{'location' : 'phillaur' ,\
 'temperatureInC' :%2d ,\
 'temperatureInF' :%2d ,\
-'humidity':%2d, 'relay1': %2d }]}",
-             t, tf, h, relay1);
-  server.send ( 200, "text/json", temp );
+'humidity':%2d,\
+'relay1':%d,\
+'relay2':%d\
+}]}",
+             t, tf, h, digitalRead(5), digitalRead(4));
+  control::server.send ( 200, "text/json", temp );
 }
 
-void toggleRelay() {
-  char temp[400];
-  String msg = "";
-  if (relay1 == 0) {
-    relay1 = 1;
-    msg = "Light is turned on";
-  }
-  else {
-    relay1 = 0;
-    msg = "Light is turned off";
-  }
-  int state = server.arg("state").toInt();
-  if ((state == 1) or (state == 0)) {
-    int relay = server.arg("relay").toInt();
-    if ((relay == 5) or (relay == 4)) {
-      digitalWrite (relay, state); //GPIO 5 // Relay 1
-      snprintf ( temp, 400,
-                 "<html>\
-  <head>\
-    <title>NodeMCU DHT11 Sensor and Relay Board</title>\
-    <meta http-equiv='refresh' content='0; url=../'>\
-    </head>\
-  <body>\
-  %d .</body>\
-  </html>", 0);
-      server.send ( 200, "text/html", temp );
-    }
-
-  }
-
-}
 
 void handleRoot() {
   digitalWrite ( led, 1 );
@@ -83,7 +47,7 @@ void handleRoot() {
   int hr = min / 60;
   int h = dht.readHumidity();
   int t = dht.readTemperature();
-  
+
   snprintf ( temp, 800,
              "<html>\
   <head>\
@@ -103,13 +67,13 @@ void handleRoot() {
     <p> Uptime: %02d:%02d:%02d </p>\
   </body>\
 </html>",
-             t, 
-             h, 
+             t,
+             h,
              !digitalRead(5), (digitalRead(5) ? "Off" : "On"),
              !digitalRead(4), (digitalRead(4) ? "Off" : "On"),
              hr, min % 60, sec % 60
            );
-  server.send ( 200, "text/html", temp );
+  control::server.send ( 200, "text/html", temp );
   digitalWrite ( led, 0 );
 }
 
@@ -117,18 +81,18 @@ void handleNotFound() {
   digitalWrite ( led, 1 );
   String message = "File Not Found\n\n";
   message += "URI: ";
-  message += server.uri();
+  message += control::server.uri();
   message += "\nMethod: ";
-  message += ( server.method() == HTTP_GET ) ? "GET" : "POST";
+  message += ( control::server.method() == HTTP_GET ) ? "GET" : "POST";
   message += "\nArguments: ";
-  message += server.args();
+  message += control::server.args();
   message += "\n";
 
-  for ( uint8_t i = 0; i < server.args(); i++ ) {
-    message += " " + server.argName ( i ) + ": " + server.arg ( i ) + "\n";
+  for ( uint8_t i = 0; i < control::server.args(); i++ ) {
+    message += " " + control::server.argName ( i ) + ": " + control::server.arg ( i ) + "\n";
   }
 
-  server.send ( 404, "text/plain", message );
+  control::server.send ( 404, "text/plain", message );
   digitalWrite ( led, 0 );
 }
 
@@ -140,7 +104,7 @@ void setup ( void ) {
   pinMode(outputLed, OUTPUT);
   digitalWrite ( led, 0 );
   Serial.begin ( 9600 );
-  WiFi.begin ( ssid, password );
+  WiFi.begin(login::ssid, login::password);
   Serial.println ( "" );
   //Blynk.begin(auth, ssid, password);
   // Wait for connection
@@ -151,7 +115,7 @@ void setup ( void ) {
 
   Serial.println ( "" );
   Serial.print ( "Connected to " );
-  Serial.println ( ssid );
+  Serial.println ( login::ssid );
   Serial.print ( "IP address: " );
   Serial.println ( WiFi.localIP() );
 
@@ -159,20 +123,22 @@ void setup ( void ) {
     Serial.println ( "MDNS responder started" );
   }
   MDNS.addService("http", "tcp", 80);
-  server.on ( "/", handleRoot );
+  control::server.on ( "/", handleRoot );
 
-  server.on ( "/inline", []() {
-    server.send ( 200, "text/plain", "this works as well" );
+  control::server.on ( "/inline", []() {
+    control::server.send ( 200, "text/plain", "this works as well" );
   } );
-  server.on("/json", outputJson);
-  server.on("/control", toggleRelay);
-  server.onNotFound ( handleNotFound );
-  server.begin();
+  control::server.on("/json", outputJson);
+  control::server.on("/control", control::toggleRelay);
+  control::server.onNotFound ( handleNotFound );
+  control::server.begin();
   Serial.println ( "HTTP server started" );
 }
 
+
+
 void loop ( void ) {
-  server.handleClient();
+  control::server.handleClient();
   //  Blynk.run();
 }
 
