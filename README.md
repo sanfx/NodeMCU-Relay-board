@@ -1,6 +1,5 @@
-# NodeMCU V1.0 connected to DHT11 and 2 5 volt Relays.
+# NodeMCU V1.0 connected to DHT11 and 2 channel 5 volt Relays.
 
-
-  - /relay1 **Turns on Relay 1** 
-    - /relay2 **Turns on Relay 2**
+  - /control?relay=5&state=1 **Turns on Relay 1** 
+  - /control?relay=4&state=0 **Turns off Relay 2**
 
