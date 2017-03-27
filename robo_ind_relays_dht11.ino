@@ -74,17 +74,6 @@ void toggleRelay() {
 
 }
 
-
-
-void turnOnRelayTwo() {
-  digitalWrite ( outputLed, 1 );
-  digitalWrite (4, HIGH); //GPIO 4 // Relay 2
-  server.send ( 200, "text/html", "Relay 2 turned on." );
-  digitalWrite ( outputLed, 0 );
-}
-
-
-
 void handleRoot() {
   digitalWrite ( led, 1 );
 
@@ -94,6 +83,7 @@ void handleRoot() {
   int hr = min / 60;
   int h = dht.readHumidity();
   int t = dht.readTemperature();
+  
   snprintf ( temp, 800,
              "<html>\
   <head>\
@@ -101,18 +91,23 @@ void handleRoot() {
     <title>NodeMCU DHT11 Sensor \and Relay Board</title>\
     <style>\
       body { background-color: #cccccc; font-family: Arial, Helvetica, Sans-Serif; Color: #000088; }\
+      li { margin: 10px 0;}\
     </style>\
   </head>\
   <body>\
   <h1>Hello from NodeMCU!</h1>\
   <p>Temperature: %02d &#8451;<br>\
   Humidity: %2d %<br></p><ol>\
-  <li><a href='/control?relay=5&state=%d'>Turn Relay 1 On\/Off</a>\
-  <li><a href='/control?relay=4&state=%d'>Turn Relay 2 On\/Off</a></ol>\
+  <li><a href='/control?relay=5&state=%d'>Turn Relay 1 %s</a>\
+  <li><a href='/control?relay=4&state=%d'>Turn Relay 2 %s</a></ol>\
     <p> Uptime: %02d:%02d:%02d </p>\
   </body>\
 </html>",
-             t, h, !digitalRead(5), !digitalRead(4), hr, min % 60, sec % 60
+             t, 
+             h, 
+             !digitalRead(5), (digitalRead(5) ? "Off" : "On"),
+             !digitalRead(4), (digitalRead(4) ? "Off" : "On"),
+             hr, min % 60, sec % 60
            );
   server.send ( 200, "text/html", temp );
   digitalWrite ( led, 0 );
