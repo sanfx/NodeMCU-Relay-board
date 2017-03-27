@@ -2,8 +2,14 @@
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
+//#include <ESP8266HTTPClient.h>
 #include <ESP8266mDNS.h>
 #include <DHT.h>
+
+char noipServer[] = "https://dynupdate.no-ip.com";
+
+int relay1 = 0;
+int relay2 = 0;
 
 
 // Uncomment whatever type you're using!
@@ -12,10 +18,10 @@
 //#define DHTTYPE DHT21   // DHT 21, AM2301
 #define DHTPIN 14
 DHT dht(DHTPIN, DHTTYPE);
-
+const char* host = "nodemcu";
 const char* ssid = "Vikas_PC_Network.";
 const char* password = "1090298156";
-float pfDew, pfHum, pfTemp, pfVcc;
+
 
 ESP8266WebServer server ( 80 );
 
@@ -28,55 +34,85 @@ void outputJson() {
   int t = dht.readTemperature();
   int tf = dht.readTemperature(true);
   snprintf ( temp, 400,
-    "{'nodemcu' : [{'location' : 'phillaur' , 'temperatureInC' :\
-    %20d , 'temperatureInF' : %20d , 'humidity':%20d }]}",
-             t, tf, h);
-  server.send ( 200, "text/html", temp );
+             "{'nodemcu' : [{'location' : 'phillaur' ,\
+'temperatureInC' :%2d ,\
+'temperatureInF' :%2d ,\
+'humidity':%2d, 'relay1': %2d }]}",
+             t, tf, h, relay1);
+  server.send ( 200, "text/json", temp );
 }
 
-void turnOnRelayOne(){
-  digitalWrite ( outputLed, 1 );
-  digitalWrite (5, HIGH); //GPIO 5 // Relay 1
-  server.send ( 200, "text/html", "Relay 1 turned on." );
-  digitalWrite ( outputLed, 0 );
+void toggleRelay() {
+  char temp[400];
+  String msg = "";
+  if (relay1 == 0) {
+    relay1 = 1;
+    msg = "Light is turned on";
+  }
+  else {
+    relay1 = 0;
+    msg = "Light is turned off";
+  }
+  int state = server.arg("state").toInt();
+  if ((state == 1) or (state == 0)) {
+    int relay = server.arg("relay").toInt();
+    if ((relay == 5) or (relay == 4)) {
+      digitalWrite (relay, state); //GPIO 5 // Relay 1
+      snprintf ( temp, 400,
+                 "<html>\
+  <head>\
+    <title>NodeMCU DHT11 Sensor and Relay Board</title>\
+    <meta http-equiv='refresh' content='0; url=../'>\
+    </head>\
+  <body>\
+  %d .</body>\
+  </html>", 0);
+      server.send ( 200, "text/html", temp );
+    }
+
+  }
+
 }
 
 
-void turnOnRelayTwo(){
+
+void turnOnRelayTwo() {
   digitalWrite ( outputLed, 1 );
   digitalWrite (4, HIGH); //GPIO 4 // Relay 2
   server.send ( 200, "text/html", "Relay 2 turned on." );
   digitalWrite ( outputLed, 0 );
 }
 
+
+
 void handleRoot() {
   digitalWrite ( led, 1 );
 
-  char temp[400];
+  char temp[800];
   int sec = millis() / 1000;
   int min = sec / 60;
   int hr = min / 60;
   int h = dht.readHumidity();
   int t = dht.readTemperature();
-  snprintf ( temp, 400,
-
+  snprintf ( temp, 800,
              "<html>\
   <head>\
-    <meta http-equiv='refresh' content='5'/>\
-    <title>NodeMCU DHT11 Sensor and Relay Board</title>\
+    <meta http-equiv='refresh' content='25'/>\
+    <title>NodeMCU DHT11 Sensor \and Relay Board</title>\
     <style>\
       body { background-color: #cccccc; font-family: Arial, Helvetica, Sans-Serif; Color: #000088; }\
     </style>\
   </head>\
   <body>\
   <h1>Hello from NodeMCU!</h1>\
-  <p>Temperature: %20d<br>\
-  Humidity: %20d %<br></p>\
-    <p>Uptime: %02d:%02d:%02d</p>\
+  <p>Temperature: %02d &#8451;<br>\
+  Humidity: %2d %<br></p><ol>\
+  <li><a href='/control?relay=5&state=%d'>Turn Relay 1 On\/Off</a>\
+  <li><a href='/control?relay=4&state=%d'>Turn Relay 2 On\/Off</a></ol>\
+    <p> Uptime: %02d:%02d:%02d </p>\
   </body>\
 </html>",
-
-             t, h,   hr, min % 60, sec % 60
+             t, h, !digitalRead(5), !digitalRead(4), hr, min % 60, sec % 60
            );
   server.send ( 200, "text/html", temp );
   digitalWrite ( led, 0 );
@@ -111,7 +147,7 @@ void setup ( void ) {
   Serial.begin ( 9600 );
   WiFi.begin ( ssid, password );
   Serial.println ( "" );
-
+  //Blynk.begin(auth, ssid, password);
   // Wait for connection
   while ( WiFi.status() != WL_CONNECTED ) {
     delay ( 500 );
@@ -124,18 +160,17 @@ void setup ( void ) {
   Serial.print ( "IP address: " );
   Serial.println ( WiFi.localIP() );
 
-  if ( MDNS.begin ( "esp8266" ) ) {
+  if ( MDNS.begin ( host ) ) {
     Serial.println ( "MDNS responder started" );
   }
-
+  MDNS.addService("http", "tcp", 80);
   server.on ( "/", handleRoot );
 
   server.on ( "/inline", []() {
     server.send ( 200, "text/plain", "this works as well" );
   } );
   server.on("/json", outputJson);
-  server.on("/relay1", turnOnRelayOne);
-  server.on("/relay2", turnOnRelayTwo);
+  server.on("/control", toggleRelay);
   server.onNotFound ( handleNotFound );
   server.begin();
   Serial.println ( "HTTP server started" );
@@ -143,5 +178,6 @@ void setup ( void ) {
 
 void loop ( void ) {
   server.handleClient();
+  //  Blynk.run();
 }
 
