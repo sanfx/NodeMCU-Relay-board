@@ -7,6 +7,7 @@
 #include "webpage.h"
 #include <DHT.h>
 
+
 char noipServer[] = "https://dynupdate.no-ip.com";
 
 #define DHTTYPE DHT11     // DHT 11
@@ -38,6 +39,8 @@ char javaScript[] = "<script type=\'text/javascript\'>\
 
 const int led = 13;
 const int outputLed = 12;
+
+
 
 void outputJson() {
   char temp[400];
@@ -77,6 +80,9 @@ void handleRoot() {
 </html>",webpage::html,
              !digitalRead(5), (digitalRead(5) ? "Off" : "On"),
              !digitalRead(4), (digitalRead(4) ? "Off" : "On"),
+//             !control::getRelayStatus(5), (control::getRelayStatus(5) ? "Off" : "On"),
+//             !control::getRelayStatus(4), (control::getRelayStatus(4) ? "Off" : "On"),
+
              hr, min % 60, sec % 60
            );
   control::server.send ( 200, "text/html", temp );
@@ -137,9 +143,6 @@ void setup ( void ) {
   MDNS.addService("http", "tcp", 80);
   control::server.on ( "/", handleRoot );
 
-  control::server.on ( "/inline", []() {
-    control::server.send ( 200, "text/plain", "this works as well" );
-  } );
   control::server.on("/json", outputJson);
   control::server.on("/control", control::toggleRelay);
   control::server.onNotFound ( handleNotFound );
