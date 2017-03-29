@@ -1,8 +1,8 @@
 
 #include <ESP8266WiFi.h>
+
 #include <WiFiClient.h>
-//#include <ESP8266WebServer.h>
-//#include <ESP8266HTTPClient.h>
+
 #include <ESP8266mDNS.h>
 #include "login.h"
 #include "control.h"
@@ -14,7 +14,27 @@ char noipServer[] = "https://dynupdate.no-ip.com";
 #define DHTPIN 14
 DHT dht(DHTPIN, DHTTYPE);
 const char* host = "nodemcu";
-
+char javaScript[] = "<script type=\'text/javascript\'>\
+  url = \'http://192.168.1.88/json\';\
+  setInterval(function() {\
+  fetchData();\
+  }, 5000);\
+  function fetchData(){\
+  var xmlhttp = new XMLHttpRequest();\
+  xmlhttp.open(\'GET\', url, true);\
+  xmlhttp.onreadystatechange = function() {\
+      if (xmlhttp.readyState == 4) {\
+          if(xmlhttp.status == 200) {\
+              var obj = JSON.parse(xmlhttp.responseText);\
+              sensorData = obj[\'nodemcu\'][0];\
+        document.getElementById(\'temp\').innerHTML = \'Temperature: \'+sensorData.temperatureInC +\'&deg;C\';\
+        document.getElementById(\'hum\').innerHTML = \'Humidity: \'+sensorData.humidity +\'%\';\
+           }\
+      }\
+  };\
+  xmlhttp.send(null);\
+  }\
+  </script>";
 
 
 const int led = 13;
@@ -26,49 +46,69 @@ void outputJson() {
   int t = dht.readTemperature();
   int tf = dht.readTemperature(true);
   snprintf ( temp, 400,
-             "{'nodemcu' : [{'location' : 'phillaur' ,\
-'temperatureInC' :%2d ,\
-'temperatureInF' :%2d ,\
-'humidity':%2d,\
-'relay1':%d,\
-'relay2':%d\
+             "{\"nodemcu\" : [{\"location\" : \"phillaur\" ,\
+\"temperatureInC\" :%2d ,\
+\"temperatureInF\" :%2d ,\
+\"humidity\":%2d,\
+\"relay1\":%d,\
+\"relay2\":%d\
 }]}",
              t, tf, h, digitalRead(5), digitalRead(4));
   control::server.send ( 200, "text/json", temp );
 }
 
-
 void handleRoot() {
   digitalWrite ( led, 1 );
 
-  char temp[800];
+  char temp[2000];
   int sec = millis() / 1000;
   int min = sec / 60;
   int hr = min / 60;
+  delay(200);
   int h = dht.readHumidity();
   int t = dht.readTemperature();
-
-  snprintf ( temp, 800,
-             "<html>\
-  <head>\
-    <meta http-equiv='refresh' content='25'/>\
-    <title>NodeMCU DHT11 Sensor \and Relay Board</title>\
-    <style>\
-      body { background-color: #cccccc; font-family: Arial, Helvetica, Sans-Serif; Color: #000088; }\
-      li { margin: 10px 0;}\
-    </style>\
-  </head>\
-  <body>\
-  <h1>Hello from NodeMCU!</h1>\
-  <p>Temperature: %02d &#8451;<br>\
-  Humidity: %2d %<br></p><ol>\
-  <li><a href='/control?relay=5&state=%d'>Turn Relay 1 %s</a>\
-  <li><a href='/control?relay=4&state=%d'>Turn Relay 2 %s</a></ol>\
-    <p> Uptime: %02d:%02d:%02d </p>\
-  </body>\
-</html>",
-             t,
-             h,
+  char html[] = "<html>\n\t\
+  <head>\n\t\t\
+    <title>NodeMCU DHT11 Sensor \and Relay Board</title>\n\t\t\
+    <style>\n\t\
+      body { background-color: #cccccc; font-family: Arial, Helvetica, Sans-Serif; Color: #000088; }\n\t\t\
+      li { margin: 10px 0;}\n\
+    </style>\n\t\
+    <script type=\'text/javascript\'>\n\
+    url = \'http://192.168.1.88/json\';\n\t\t\
+  setInterval(function() {\n\t\t\
+  fetchData();\n\
+  }, 60000);\n\
+  function fetchData(){\n\t\
+  var xmlhttp = new XMLHttpRequest();\n\t\
+  xmlhttp.open(\'GET\', url, true);\n\t\
+  xmlhttp.onreadystatechange = function() {\n\t\
+      if (xmlhttp.readyState == 4) {\n\t\
+          if(xmlhttp.status == 200) {\n\
+              var obj = JSON.parse(xmlhttp.responseText);\n\
+              sensorData = obj[\'nodemcu\'][0];\n\
+        document.getElementById(\'temp\').innerHTML = \'Temperature: \'+sensorData.temperatureInC +\'&deg;C\';\n\
+        document.getElementById(\'hum\').innerHTML = \'Humidity: \'+sensorData.humidity +\'%\';\n\
+           }\n\
+      }\n\
+  };\n\
+  xmlhttp.send(null);\n\
+  }\n\
+    </script>\n\
+    \n\t\n</head>\n\
+    <body onload=\'fetchData()\'>\n\
+    \t<h1>Hello from NodeMCU!</h1>\n\
+    <\div id=\'temp\'>Temperature: </\div>\n\
+    <\div id=\'hum\'>Humidity:  <br></\div><ol>\n\t";
+  
+  snprintf ( temp, 2000,
+             
+  "%s\n\
+  <li><a href='/control?relay=5&state=%d'>Turn Relay 1 %s</a>\n\
+  \t<li><a href='/control?relay=4&state=%d'>Turn Relay 2 %s</a>\n</ol>\n\
+    <p> Uptime: %02d:%02d:%02d </p>\n\
+  </body>\n\
+</html>",html,
              !digitalRead(5), (digitalRead(5) ? "Off" : "On"),
              !digitalRead(4), (digitalRead(4) ? "Off" : "On"),
              hr, min % 60, sec % 60
@@ -104,6 +144,12 @@ void setup ( void ) {
   pinMode(outputLed, OUTPUT);
   digitalWrite ( led, 0 );
   Serial.begin ( 9600 );
+  // config static IP
+  IPAddress ip(192, 168, 1, 88); // where xx is the desired IP Address
+  IPAddress gateway(192, 168, 1, 1);
+  IPAddress subnet(255, 255, 255, 0);
+  IPAddress dns(192, 168, 1, 1);
+  WiFi.config(ip, dns, gateway, subnet);
   WiFi.begin(login::ssid, login::password);
   Serial.println ( "" );
   //Blynk.begin(auth, ssid, password);
