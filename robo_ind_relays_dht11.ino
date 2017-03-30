@@ -61,8 +61,8 @@ void outputJson() {
 
 void handleRoot() {
   digitalWrite ( led, 1 );
-
-  char temp[2000];
+  const int nsize = 3000;
+  char temp[nsize];
   int sec = millis() / 1000;
   int min = sec / 60;
   int hr = min / 60;
@@ -70,14 +70,19 @@ void handleRoot() {
   int h = dht.readHumidity();
   int t = dht.readTemperature();
   
-  snprintf ( temp, 2000,
+  snprintf ( temp, nsize,
              
   "%s\n\
+  <button id=\'btn1\' onclick=\"turnOnRelay(this, \'5\')\" class=\'button button3\'>Turn %s Relay 1</button><br>\n\
+  <button id=\'btn2\' onclick=\"turnOnRelay(this, \'4\')\" class=\'button button3\'>Turn %s Relay 2</button>\n\t\
+  <!--ol>\n\t\
   <li><a href='/control?relay=5&state=%d'>Turn Relay 1 %s</a>\n\
-  \t<li><a href='/control?relay=4&state=%d'>Turn Relay 2 %s</a>\n</ol>\n\
+  \t<li><a href='/control?relay=4&state=%d'>Turn Relay 2 %s</a>\n</ol-->\n\
     <p> Uptime: %02d:%02d:%02d </p>\n\
   </body>\n\
 </html>",webpage::html,
+(digitalRead(5) ? "Off" : "On"),
+(digitalRead(4) ? "Off" : "On"),
              !digitalRead(5), (digitalRead(5) ? "Off" : "On"),
              !digitalRead(4), (digitalRead(4) ? "Off" : "On"),
 //             !control::getRelayStatus(5), (control::getRelayStatus(5) ? "Off" : "On"),
@@ -147,10 +152,8 @@ void setup ( void ) {
   control::server.on("/control", control::toggleRelay);
   control::server.onNotFound ( handleNotFound );
   control::server.begin();
-  Serial.println ( "HTTP server started" );
+  Serial.println (F("HTTP server started"));
 }
-
-
 
 void loop ( void ) {
   control::server.handleClient();

@@ -31,12 +31,10 @@ int getRelayStatus(int relay) {
 
 void toggleRelay() {
   char temp[400];
-
-  int state = server.arg("state").toInt();
+  int relay = server.arg("relay").toInt();
+  int state = !digitalRead(relay);
   if ((state == 1) or (state == 0)) {
-    int relay = server.arg("relay").toInt();
     if ((relay == 5) or (relay == 4)) {
-
       setRelayStatus(relay, state);
       snprintf ( temp, 400,
                  "<html>\
