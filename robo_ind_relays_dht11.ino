@@ -73,8 +73,8 @@ void handleRoot() {
   snprintf ( temp, nsize,
              
   "%s\n\
-  <button id=\'btn1\' onclick=\"turnOnRelay(this, \'5\')\" class=\'button button3\'>Turn %s Relay 1</button><br>\n\
-  <button id=\'btn2\' onclick=\"turnOnRelay(this, \'4\')\" class=\'button button3\'>Turn %s Relay 2</button>\n\t\
+  <button id=\'btn1\' onclick=\"turnOnRelay(this, \'5\')\" class=\'button button3\'>Turn %s Light</button><br>\n\
+  <button id=\'btn2\' onclick=\"turnOnRelay(this, \'4\')\" class=\'button button3\'>Turn %s Fan</button>\n\t\
   <!--ol>\n\t\
   <li><a href='/control?relay=5&state=%d'>Turn Relay 1 %s</a>\n\
   \t<li><a href='/control?relay=4&state=%d'>Turn Relay 2 %s</a>\n</ol-->\n\

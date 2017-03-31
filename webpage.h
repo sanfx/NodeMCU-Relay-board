@@ -3,7 +3,7 @@ namespace webpage
 
 char html[] = "<html>\n\t\
   <head>\n\t\t\
-    <title>NodeMCU DHT11 Sensor \and Relay Board</title>\n\t\t\
+    <title>Wifi Switch with Temperature & Humidity Panel</title>\n\t\t\
     <style>\n\t\
       body { background-color: #cccccc; font-family: Arial, Helvetica, Sans-Serif; \Color: #000088; }\n\t\t\
       li { margin: 10px 0;}\n\t\
@@ -52,9 +52,9 @@ char html[] = "<html>\n\t\
         document.getElementById(\'temp\').innerHTML = \'Temperature: \'+sensorData.temperatureInC +\'&deg;C\';\n\
         document.getElementById(\'hum\').innerHTML = \'Humidity: \'+sensorData.humidity +\'%\';\n\
         text = sensorData.relay1 ? \'off\' : \'on\';\n\t\
-      document.getElementById(\'btn1\').innerHTML = \'Turn \' + text + \' Relay 1\';\n\t\
+      document.getElementById(\'btn1\').innerHTML = \'Turn \' + text + \' Light\';\n\t\
       txt = sensorData.relay2 ? \'off'\ : \'on'\;\n\t\
-      document.getElementById(\'btn2\').innerHTML = \'Turn \' + txt + \' Relay 2\';\n\t\
+      document.getElementById(\'btn2\').innerHTML = \'Turn \' + txt + \' Fan\';\n\t\
            }\n\
       }\n\
   };\n\
@@ -63,7 +63,7 @@ char html[] = "<html>\n\t\
     </script>\n\
     \n\t\n</head>\n\
     <body onload=\'startUp()\'>\n\
-    \t<h1>Hello from NodeMCU!</h1>\n\
+    \t<h1>Wifi Switch with Temperature & Humidity Panel</h1>\n\
     <\div id=\'temp\'>Temperature: </\div>\n\
     <\div id=\'hum\'>Humidity:  <br></\div>\n\t";
 
