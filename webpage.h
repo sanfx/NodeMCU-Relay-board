@@ -4,8 +4,12 @@ namespace webpage
 char html[] = "<html>\n\t\
   <head>\n\t\t\
     <title>Wifi Switch with Temperature & Humidity Panel</title>\n\t\t\
+    <meta name=\"viewport\" content=\"width=device-width\" /><link href='https://fonts.googleapis.com/css?family=Advent+Pro' rel=\"stylesheet\" type=\"text/css\"><style>\n\
     <style>\n\t\
-      body { background-color: #cccccc; font-family: Arial, Helvetica, Sans-Serif; \Color: #000088; }\n\t\t\
+    div {color: #fff; text-align: center; font-family: 'Advent Pro';font-weight: 300;left: 50%;position: absolute;top: 10%;transform: translateX(-50%) translateY(-50%);}\n\
+    h1,h4 {text-align: center; margin-top: 1; margin-left: auto; margin-right: auto; }\n\t\
+    h2 {font-size: 60px; margin-top: 0; margin-left: auto; margin-right: auto; font-weight: 200; text-align: center;}\n\t\
+      body {height: 100%;}\n\t\t\
       li { margin: 10px 0;}\n\t\
       .button {\n\t\
     -webkit-transition-duration: 0.4s;\n\t\
@@ -21,7 +25,7 @@ char html[] = "<html>\n\t\
     margin: 4px 2px;\n\t\
     \cursor: pointer;\n\
 }\n\
-.button3 {width: 100%; border-radius: 12px; background-color: white; border: 2px solid #4CAF50;}\n\
+.button3 {margin-top: 0; width: 100%; border-radius: 12px; background-color: white; border: 2px solid #4CAF50;}\n\
 .button3:hover {box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);}\n\
     </style>\n\t\
     <script type=\'text/javascript\'>\n\t\
@@ -37,10 +41,10 @@ char html[] = "<html>\n\t\
     function startUp(){\n\t\
     fetchData();\n\t\
     }\n\
-    url = \'http://192.168.1.88/json\';\n\t\t\
+    url = \'/json\';\n\t\t\
   setInterval(function() {\n\t\t\
   fetchData();\n\
-  }, 60000);\n\
+  }, 10000);\n\
   function fetchData(){\n\t\
   var xmlhttp = new XMLHttpRequest();\n\t\
   xmlhttp.open(\'GET\', url, true);\n\t\
@@ -49,8 +53,8 @@ char html[] = "<html>\n\t\
           if(xmlhttp.status == 200) {\n\
               var obj = JSON.parse(xmlhttp.responseText);\n\
               sensorData = obj[\'nodemcu\'][0];\n\
-        document.getElementById(\'temp\').innerHTML = \'Temperature: \'+sensorData.temperatureInC +\'&deg;C\';\n\
-        document.getElementById(\'hum\').innerHTML = \'Humidity: \'+sensorData.humidity +\'%\';\n\
+        document.getElementById(\'temp\').innerHTML = sensorData.temperatureInC +\'&deg;C\';\n\
+        document.getElementById(\'hum\').innerHTML = sensorData.humidity +\'%\';\n\
         text = sensorData.relay1 ? \'off\' : \'on\';\n\t\
       document.getElementById(\'btn1\').innerHTML = \'Turn \' + text + \' Light\';\n\t\
       txt = sensorData.relay2 ? \'off'\ : \'on'\;\n\t\
@@ -62,10 +66,12 @@ char html[] = "<html>\n\t\
   }\n\
     </script>\n\
     \n\t\n</head>\n\
-    <body onload=\'startUp()\'>\n\
-    \t<h1>Wifi Switch with Temperature & Humidity Panel</h1>\n\
-    <\div id=\'temp\'>Temperature: </\div>\n\
-    <\div id=\'hum\'>Humidity:  <br></\div>\n\t";
+    <body onload=\'startUp()\'><div>\n\
+    \t<!--h4>Wifi Switch with Temperature & Humidity Panel</h4-->\n\
+    <h1>Temperature</h1>\n\
+    <\h2 id=\'temp\'></\h2>\n\
+    <h1>Humidity</h1>\n\
+    <\h2 id=\'hum\'></\h2>\n\t";
 
 }
 

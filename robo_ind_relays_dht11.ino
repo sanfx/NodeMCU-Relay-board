@@ -79,7 +79,7 @@ void handleRoot() {
   <li><a href='/control?relay=5&state=%d'>Turn Relay 1 %s</a>\n\
   \t<li><a href='/control?relay=4&state=%d'>Turn Relay 2 %s</a>\n</ol-->\n\
     <p> Uptime: %02d:%02d:%02d </p>\n\
-  </body>\n\
+  </\div></body>\n\
 </html>",webpage::html,
 (digitalRead(5) ? "Off" : "On"),
 (digitalRead(4) ? "Off" : "On"),
