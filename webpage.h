@@ -9,7 +9,7 @@ char html[] = "<html>\n\t\
     div {color: #fff; text-align: center; font-family: 'Advent Pro';font-weight: 300;left: 50%;position: absolute;top: 10%;transform: translateX(-50%) translateY(-50%);}\n\
     h1,h4 {text-align: center; margin-top: 1; margin-left: auto; margin-right: auto; }\n\t\
     h2 {font-size: 60px; margin-top: 0; margin-left: auto; margin-right: auto; font-weight: 200; text-align: center;}\n\t\
-      body {height: 100%; margin-right: 150px; margin-left: 150px;}\n\t\t\
+      body {height: 100%; margin-right: 50px; margin-left: 50px;}\n\t\t\
       li { margin: 10px 0;}\n\t\
       .button {\n\t\
     -webkit-transition-duration: 0.4s;\n\t\
