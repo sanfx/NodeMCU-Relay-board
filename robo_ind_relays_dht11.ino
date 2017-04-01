@@ -7,9 +7,6 @@
 #include "webpage.h"
 #include <DHT.h>
 
-
-char noipServer[] = "https://dynupdate.no-ip.com";
-
 #define DHTTYPE DHT11     // DHT 11
 #define DHTPIN 14
 DHT dht(DHTPIN, DHTTYPE);
@@ -37,32 +34,22 @@ void outputJson() {
 }
 
 void handleRoot() {
-  digitalWrite ( led, 1 );
   const int nsize = 3000;
   char temp[nsize];
-  int sec = millis() / 1000;
-  int min = sec / 60;
-  int hr = min / 60;
   delay(200);
   int h = dht.readHumidity();
   int t = dht.readTemperature();
-  
   snprintf ( temp, nsize,
              
   "%s\n\
   <button id=\'btn1\' onclick=\"turnOnRelay(this, \'5\')\" class=\'button button3\'>Turn %s Light</button><br>\n\
   <button id=\'btn2\' onclick=\"turnOnRelay(this, \'4\')\" class=\'button button3\'>Turn %s Fan</button>\n\t\
-    <p> Uptime: %02d:%02d:%02d </p>\n\
   </\div></body>\n\
 </html>",webpage::html,
 
 (control::getRelayStatus(5) ? "Off" : "On"),
-(control::getRelayStatus(4) ? "Off" : "On"),
-
-             hr, min % 60, sec % 60
-           );
+(control::getRelayStatus(4) ? "Off" : "On"));
   control::server.send ( 200, "text/html", temp );
-  digitalWrite ( led, 0 );
 }
 
 void handleNotFound() {
@@ -93,7 +80,7 @@ void setup ( void ) {
   digitalWrite ( led, 0 );
   Serial.begin ( 9600 );
   // config static IP
-  IPAddress ip(192, 168, 1, 88); // where xx is the desired IP Address
+  IPAddress ip(192, 168, 1, 88);
   IPAddress gateway(192, 168, 1, 1);
   IPAddress subnet(255, 255, 255, 0);
   IPAddress dns(192, 168, 1, 1);
@@ -101,7 +88,7 @@ void setup ( void ) {
   WiFi.begin(login::ssid, login::password);
   Serial.println ( "" );
   EEPROM.begin(512);
-  //Blynk.begin(auth, ssid, password);
+
   // Wait for connection
   while ( WiFi.status() != WL_CONNECTED ) {
     delay ( 500 );
