@@ -51,12 +51,13 @@ char html[] = "<html>\n\t\
       if (xmlhttp.readyState == 4) {\n\t\
           if(xmlhttp.status == 200) {\n\
               var obj = JSON.parse(xmlhttp.responseText);\n\
-              sensorData = obj[\'nodemcu\'][0];\n\
-        document.getElementById(\'temp\').innerHTML = sensorData.temperatureInC +\'&deg;C\';\n\
-        document.getElementById(\'hum\').innerHTML = sensorData.humidity +\'%\';\n\
-        text = sensorData.relay1 ? \'off\' : \'on\';\n\t\
+              sd = obj[\'nodemcu\'][0];\n\t\t\
+              if (sd.temperatureInC < 70){\n\t\
+        document.getElementById(\'temp\').innerHTML = sd.temperatureInC +\'&deg;C\';\n\
+        document.getElementById(\'hum\').innerHTML = sd.humidity +\'%\';\n\t}\n\
+        text = sd.relay1 ? \'off\' : \'on\';\n\t\
       document.getElementById(\'btn1\').innerHTML = \'Turn \' + text + \' Light\';\n\t\
-      txt = sensorData.relay2 ? \'off'\ : \'on'\;\n\t\
+      txt = sd.relay2 ? \'off'\ : \'on'\;\n\t\
       document.getElementById(\'btn2\').innerHTML = \'Turn \' + txt + \' Fan\';\n\t\
            }\n\
       }\n\
