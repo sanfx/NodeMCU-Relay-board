@@ -14,27 +14,7 @@ char noipServer[] = "https://dynupdate.no-ip.com";
 #define DHTPIN 14
 DHT dht(DHTPIN, DHTTYPE);
 const char* host = "nodemcu";
-char javaScript[] = "<script type=\'text/javascript\'>\
-  url = \'http://192.168.1.88/json\';\
-  setInterval(function() {\
-  fetchData();\
-  }, 5000);\
-  function fetchData(){\
-  var xmlhttp = new XMLHttpRequest();\
-  xmlhttp.open(\'GET\', url, true);\
-  xmlhttp.onreadystatechange = function() {\
-      if (xmlhttp.readyState == 4) {\
-          if(xmlhttp.status == 200) {\
-              var obj = JSON.parse(xmlhttp.responseText);\
-              sensorData = obj[\'nodemcu\'][0];\
-        document.getElementById(\'temp\').innerHTML = \'Temperature: \'+sensorData.temperatureInC +\'&deg;C\';\
-        document.getElementById(\'hum\').innerHTML = \'Humidity: \'+sensorData.humidity +\'%\';\
-           }\
-      }\
-  };\
-  xmlhttp.send(null);\
-  }\
-  </script>";
+
 
 const int led = 13;
 const int outputLed = 12;

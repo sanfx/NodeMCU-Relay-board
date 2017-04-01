@@ -3,8 +3,7 @@
 
 namespace control
 {
-int addr = 0;
-int addr2 = 1;
+
 ESP8266WebServer server ( 80 );
 
 void setRelayStatus(int relay, int state) {

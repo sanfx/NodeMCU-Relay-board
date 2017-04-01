@@ -3,7 +3,7 @@ namespace webpage
 
 char html[] = "<html>\n\t\
   <head>\n\t\t\
-    <title>Wifi Switch with Temperature & Humidity Panel</title>\n\t\t\
+    <title>Wifi Switch</title>\n\t\t\
     <meta name=\"viewport\" content=\"width=device-width\" /><link href='https://fonts.googleapis.com/css?family=Advent+Pro' rel=\"stylesheet\" type=\"text/css\"><style>\n\
     <style>\n\t\
     div {color: #fff; text-align: center; font-family: 'Advent Pro';font-weight: 300;left: 50%;position: absolute;top: 10%;transform: translateX(-50%) translateY(-50%);}\n\
@@ -26,13 +26,13 @@ char html[] = "<html>\n\t\
     \cursor: pointer;\n\
 }\n\
 .button3 {margin-top: 0; width: 100%; border-radius: 12px; background-color: white; border: 2px solid #4CAF50;}\n\
-.button3:hover {box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);}\n\
+.button3:hover {box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);background-color: #4CAF50;}\n\
     </style>\n\t\
     <script type=\'text/javascript\'>\n\t\
         function turnOnRelay(param, relayNum) {\n\t\t\
   var ifrm = document.createElement(\'iframe\');\n\t\
     ifrm.setAttribute(\'src\', \'/control?relay=\' + relayNum);\n\t\
-    ifrm.setAttribute(\'id\', \'iframe\');\n\t\
+    ifrm.setAttribute(\'id\',\'iframe\');\n\t\
     ifrm.style.visibility = \'false\';\n\t\
     ifrm.style.display = \'none\';\n\t\
     document.body.appendChild(ifrm);\n\t\
