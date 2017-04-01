@@ -52,20 +52,12 @@ void handleRoot() {
   "%s\n\
   <button id=\'btn1\' onclick=\"turnOnRelay(this, \'5\')\" class=\'button button3\'>Turn %s Light</button><br>\n\
   <button id=\'btn2\' onclick=\"turnOnRelay(this, \'4\')\" class=\'button button3\'>Turn %s Fan</button>\n\t\
-  <!--ol>\n\t\
-  <li><a href='/control?relay=5&state=%d'>Turn %s Light</a>\n\
-  \t<li><a href='/control?relay=4&state=%d'>Turn %s Fan</a>\n</ol-->\n\
     <p> Uptime: %02d:%02d:%02d </p>\n\
   </\div></body>\n\
 </html>",webpage::html,
-//(digitalRead(5) ? "Off" : "On"),
-//(digitalRead(4) ? "Off" : "On"),
+
 (control::getRelayStatus(5) ? "Off" : "On"),
 (control::getRelayStatus(4) ? "Off" : "On"),
-             !digitalRead(5), (digitalRead(5) ? "Off" : "On"),
-             !digitalRead(4), (digitalRead(4) ? "Off" : "On"),
-//             !control::getRelayStatus(5), (control::getRelayStatus(5) ? "Off" : "On"),
-//             !control::getRelayStatus(4), (control::getRelayStatus(4) ? "Off" : "On"),
 
              hr, min % 60, sec % 60
            );
