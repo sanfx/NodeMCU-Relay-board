@@ -4,29 +4,28 @@
 namespace control
 {
 int addr = 0;
-int addr2 = 0;
+int addr2 = 1;
 ESP8266WebServer server ( 80 );
-
 
 void setRelayStatus(int relay, int state) {
   digitalWrite (relay, state);
   if (relay == 5) {
-    addr = addr;
+    EEPROM.write(0, state);
   }
   if (relay == 4) {
-    addr = addr2;
+    EEPROM.write(1, state);
   }
-  EEPROM.write(addr, digitalRead(relay));
+  EEPROM.commit();
+  delay(100);
 }
 
 int getRelayStatus(int relay) {
   if (relay == 5) {
-    addr = addr;
+    return EEPROM.read(0);
   }
   if (relay == 4) {
-    addr = addr2;
+    return EEPROM.read(1);
   }
-  return EEPROM.read(addr);
 }
 
 void toggleRelay() {
@@ -51,9 +50,6 @@ void toggleRelay() {
   }
 
 }
-
-
-
 }
 
 

@@ -36,11 +36,8 @@ char javaScript[] = "<script type=\'text/javascript\'>\
   }\
   </script>";
 
-
 const int led = 13;
 const int outputLed = 12;
-
-
 
 void outputJson() {
   char temp[400];
@@ -55,7 +52,7 @@ void outputJson() {
 \"relay1\":%d,\
 \"relay2\":%d\
 }]}",
-             t, tf, h, digitalRead(5), digitalRead(4));
+             t, tf, h, control::getRelayStatus(5), control::getRelayStatus(4));
   control::server.send ( 200, "text/json", temp );
 }
 
@@ -76,13 +73,15 @@ void handleRoot() {
   <button id=\'btn1\' onclick=\"turnOnRelay(this, \'5\')\" class=\'button button3\'>Turn %s Light</button><br>\n\
   <button id=\'btn2\' onclick=\"turnOnRelay(this, \'4\')\" class=\'button button3\'>Turn %s Fan</button>\n\t\
   <!--ol>\n\t\
-  <li><a href='/control?relay=5&state=%d'>Turn Relay 1 %s</a>\n\
-  \t<li><a href='/control?relay=4&state=%d'>Turn Relay 2 %s</a>\n</ol-->\n\
+  <li><a href='/control?relay=5&state=%d'>Turn %s Light</a>\n\
+  \t<li><a href='/control?relay=4&state=%d'>Turn %s Fan</a>\n</ol-->\n\
     <p> Uptime: %02d:%02d:%02d </p>\n\
   </\div></body>\n\
 </html>",webpage::html,
-(digitalRead(5) ? "Off" : "On"),
-(digitalRead(4) ? "Off" : "On"),
+//(digitalRead(5) ? "Off" : "On"),
+//(digitalRead(4) ? "Off" : "On"),
+(control::getRelayStatus(5) ? "Off" : "On"),
+(control::getRelayStatus(4) ? "Off" : "On"),
              !digitalRead(5), (digitalRead(5) ? "Off" : "On"),
              !digitalRead(4), (digitalRead(4) ? "Off" : "On"),
 //             !control::getRelayStatus(5), (control::getRelayStatus(5) ? "Off" : "On"),
@@ -129,6 +128,7 @@ void setup ( void ) {
   WiFi.config(ip, dns, gateway, subnet);
   WiFi.begin(login::ssid, login::password);
   Serial.println ( "" );
+  EEPROM.begin(512);
   //Blynk.begin(auth, ssid, password);
   // Wait for connection
   while ( WiFi.status() != WL_CONNECTED ) {
@@ -147,12 +147,14 @@ void setup ( void ) {
   }
   MDNS.addService("http", "tcp", 80);
   control::server.on ( "/", handleRoot );
-
   control::server.on("/json", outputJson);
   control::server.on("/control", control::toggleRelay);
-  control::server.onNotFound ( handleNotFound );
+  control::server.onNotFound (handleNotFound);
   control::server.begin();
   Serial.println (F("HTTP server started"));
+  // get relay state from the last saved in EEPROM
+  digitalWrite(5, control::getRelayStatus(5));
+  digitalWrite(4, control::getRelayStatus(4));
 }
 
 void loop ( void ) {
